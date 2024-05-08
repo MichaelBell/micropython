@@ -32,6 +32,8 @@
 #include "modrp2.h"
 #include "hardware/flash.h"
 #include "pico/binary_info.h"
+#include "hardware/structs/ssi.h"
+#include "hardware/structs/vreg_and_chip_reset.h"
 
 #define BLOCK_SIZE_BYTES (FLASH_SECTOR_SIZE)
 
@@ -196,10 +198,33 @@ STATIC mp_obj_t rp2_flash_ioctl(mp_obj_t self_in, mp_obj_t cmd_in, mp_obj_t arg_
 }
 STATIC MP_DEFINE_CONST_FUN_OBJ_3(rp2_flash_ioctl_obj, rp2_flash_ioctl);
 
+static void __no_inline_not_in_flash_func(change_xip_divisor)(int32_t div) {
+    hw_clear_bits(&ssi_hw->ssienr, SSI_SSIENR_SSI_EN_BITS);
+    ssi_hw->baudr = div;
+    hw_set_bits(&ssi_hw->ssienr, SSI_SSIENR_SSI_EN_BITS);
+}
+
+STATIC mp_obj_t rp2_flash_set_divisor(mp_obj_t self_in, mp_obj_t div_obj) {
+    mp_int_t div = mp_obj_get_int(div_obj);
+
+    if (div < 2 || div > 16 || (div & 1))
+        mp_raise_ValueError("Divisor out of range or not even. Expected 2-16");
+
+    mp_uint_t atomic_state = begin_critical_flash_section();
+    change_xip_divisor(div);
+    end_critical_flash_section(atomic_state);
+
+    hw_write_masked(&vreg_and_chip_reset_hw->vreg, 0b1101 << VREG_AND_CHIP_RESET_VREG_VSEL_LSB, VREG_AND_CHIP_RESET_VREG_VSEL_BITS);
+
+    return mp_const_none;
+}
+STATIC MP_DEFINE_CONST_FUN_OBJ_2(rp2_flash_set_divisor_obj, rp2_flash_set_divisor);
+
 STATIC const mp_rom_map_elem_t rp2_flash_locals_dict_table[] = {
     { MP_ROM_QSTR(MP_QSTR_readblocks), MP_ROM_PTR(&rp2_flash_readblocks_obj) },
     { MP_ROM_QSTR(MP_QSTR_writeblocks), MP_ROM_PTR(&rp2_flash_writeblocks_obj) },
     { MP_ROM_QSTR(MP_QSTR_ioctl), MP_ROM_PTR(&rp2_flash_ioctl_obj) },
+    { MP_ROM_QSTR(MP_QSTR_set_divisor), MP_ROM_PTR(&rp2_flash_set_divisor_obj) },
 };
 STATIC MP_DEFINE_CONST_DICT(rp2_flash_locals_dict, rp2_flash_locals_dict_table);
 

@@ -33,6 +33,7 @@
 #include "hardware/sync.h"
 #include "hardware/structs/ioqspi.h"
 #include "hardware/structs/sio.h"
+#include "hardware/pll.h"
 
 #if MICROPY_PY_NETWORK_CYW43
 #include "extmod/modnetwork.h"
@@ -82,6 +83,30 @@ STATIC mp_obj_t rp2_bootsel_button(void) {
 }
 MP_DEFINE_CONST_FUN_OBJ_0(rp2_bootsel_button_obj, rp2_bootsel_button);
 
+STATIC mp_obj_t rp2_set_clock_pll(mp_obj_t vco_obj, mp_obj_t div1_obj, mp_obj_t div2_obj) {
+    mp_int_t vco = mp_obj_get_int(vco_obj);
+    mp_int_t div1 = mp_obj_get_int(div1_obj);
+    mp_int_t div2 = mp_obj_get_int(div2_obj);
+
+    if (vco < PICO_PLL_VCO_MIN_FREQ_KHZ * KHZ || vco > PICO_PLL_VCO_MAX_FREQ_KHZ * KHZ)
+        mp_raise_ValueError("VCO out of range. Expected 750 - 1600MHz");
+
+    if (div1 < 1 || div1 > 7)
+        mp_raise_ValueError("PD1 out of range. Expected 1 - 7");
+
+    if (div2 < 1 || div2 > div1)
+        mp_raise_ValueError("PD2 out of range. Expected 1 - PD1");
+
+    set_sys_clock_pll(vco, div1, div2);
+
+    #if MICROPY_HW_ENABLE_UART_REPL
+    setup_default_uart();
+    mp_uart_init();
+    #endif
+
+    return mp_obj_new_int(clock_get_hz(clk_sys));
+}
+STATIC MP_DEFINE_CONST_FUN_OBJ_3(rp2_set_clock_pll_obj, rp2_set_clock_pll);
 
 STATIC const mp_rom_map_elem_t rp2_module_globals_table[] = {
     { MP_ROM_QSTR(MP_QSTR___name__),            MP_ROM_QSTR(MP_QSTR_rp2) },
@@ -90,6 +115,7 @@ STATIC const mp_rom_map_elem_t rp2_module_globals_table[] = {
     { MP_ROM_QSTR(MP_QSTR_StateMachine),        MP_ROM_PTR(&rp2_state_machine_type) },
     { MP_ROM_QSTR(MP_QSTR_DMA),                 MP_ROM_PTR(&rp2_dma_type) },
     { MP_ROM_QSTR(MP_QSTR_bootsel_button),      MP_ROM_PTR(&rp2_bootsel_button_obj) },
+    { MP_ROM_QSTR(MP_QSTR_set_clock_pll),       MP_ROM_PTR(&rp2_set_clock_pll_obj) },
 
     #if MICROPY_PY_NETWORK_CYW43
     // Deprecated (use network.country instead).
