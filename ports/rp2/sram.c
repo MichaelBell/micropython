@@ -20,6 +20,8 @@
 
 static int pio_read_offset;
 
+static bool sram_enabled = false;
+
 uint8_t __attribute__((section(".spi_ram.emu_ram"))) emu_ram[65536];
 
 static void setup_sram_pio()
@@ -199,15 +201,22 @@ uint8_t* setup_simulated_sram() {
 
     hw_set_bits(&bus_ctrl_hw->priority, BUSCTRL_BUS_PRIORITY_DMA_R_BITS | BUSCTRL_BUS_PRIORITY_DMA_W_BITS);
 
+    sram_enabled = false;
     return emu_ram;
 }
 
 void enable_simulated_sram() {
-    setup_sram_pio();
-    multicore_launch_core1(core1_main);
+    if (!sram_enabled) {
+        setup_sram_pio();
+        multicore_launch_core1(core1_main);
+    }
+    sram_enabled = true;
 }
 
 void disable_simulated_sram() {
-    disable_sram_pio();
-    multicore_reset_core1();
+    if (sram_enabled) {
+        disable_sram_pio();
+        multicore_reset_core1();
+    }
+    sram_enabled = false;
 }
