@@ -33,6 +33,7 @@
 #include "hardware/sync.h"
 #include "hardware/structs/ioqspi.h"
 #include "hardware/structs/sio.h"
+#include "sram.h"
 
 #if MICROPY_PY_NETWORK_CYW43
 #include "extmod/modnetwork.h"
@@ -82,6 +83,18 @@ static mp_obj_t rp2_bootsel_button(void) {
 }
 MP_DEFINE_CONST_FUN_OBJ_0(rp2_bootsel_button_obj, rp2_bootsel_button);
 
+static mp_obj_t rp2_enable_sim_spi_ram(void) {
+    enable_simulated_sram();
+    return mp_const_none;
+}
+MP_DEFINE_CONST_FUN_OBJ_0(rp2_enable_sim_spi_ram_obj, rp2_enable_sim_spi_ram);
+
+static mp_obj_t rp2_disable_sim_spi_ram(void) {
+    disable_simulated_sram();
+    return mp_const_none;
+}
+MP_DEFINE_CONST_FUN_OBJ_0(rp2_disable_sim_spi_ram_obj, rp2_disable_sim_spi_ram);
+
 
 static const mp_rom_map_elem_t rp2_module_globals_table[] = {
     { MP_ROM_QSTR(MP_QSTR___name__),            MP_ROM_QSTR(MP_QSTR_rp2) },
@@ -90,6 +103,8 @@ static const mp_rom_map_elem_t rp2_module_globals_table[] = {
     { MP_ROM_QSTR(MP_QSTR_StateMachine),        MP_ROM_PTR(&rp2_state_machine_type) },
     { MP_ROM_QSTR(MP_QSTR_DMA),                 MP_ROM_PTR(&rp2_dma_type) },
     { MP_ROM_QSTR(MP_QSTR_bootsel_button),      MP_ROM_PTR(&rp2_bootsel_button_obj) },
+    { MP_ROM_QSTR(MP_QSTR_enable_sim_spi_ram),  MP_ROM_PTR(&rp2_enable_sim_spi_ram_obj) },
+    { MP_ROM_QSTR(MP_QSTR_disable_sim_spi_ram), MP_ROM_PTR(&rp2_disable_sim_spi_ram_obj) },
 
     #if MICROPY_PY_NETWORK_CYW43
     // Deprecated (use network.country instead).

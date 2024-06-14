@@ -127,10 +127,14 @@ static void mp_machine_lightsleep(size_t n_args, const mp_obj_t *args) {
 
     const uint32_t xosc_hz = XOSC_MHZ * 1000000;
 
+#if MICROPY_PY_THREAD
     uint32_t my_interrupts = mp_thread_begin_atomic_section();
+#endif
     #if MICROPY_PY_NETWORK_CYW43
     if (cyw43_has_pending && cyw43_poll != NULL) {
+#if MICROPY_PY_THREAD
         mp_thread_end_atomic_section(my_interrupts);
+#endif
         return;
     }
     #endif
@@ -196,7 +200,9 @@ static void mp_machine_lightsleep(size_t n_args, const mp_obj_t *args) {
 
     // Bring back all clocks.
     clocks_init();
+#if MICROPY_PY_THREAD
     mp_thread_end_atomic_section(my_interrupts);
+#endif
 }
 
 NORETURN static void mp_machine_deepsleep(size_t n_args, const mp_obj_t *args) {

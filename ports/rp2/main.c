@@ -46,6 +46,7 @@
 #include "mpnetworkport.h"
 #include "genhdr/mpversion.h"
 #include "mp_usbd.h"
+#include "sram.h"
 
 #include "pico/stdlib.h"
 #include "pico/binary_info.h"
@@ -94,6 +95,8 @@ int main(int argc, char **argv) {
     bi_decl(bi_program_feature("thread support"))
     mp_thread_init();
     #endif
+
+    setup_simulated_sram();
 
     // Start and initialise the RTC
     datetime_t t = {

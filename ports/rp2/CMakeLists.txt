@@ -73,13 +73,18 @@ include(${MICROPY_DIR}/extmod/extmod.cmake)
 include(${PICO_SDK_PATH}/pico_sdk_init.cmake)
 
 # Define the top-level project
-project(${MICROPY_TARGET})
+project(${MICROPY_TARGET} C CXX ASM)
 
 pico_sdk_init()
 
 include(${MICROPY_DIR}/py/usermod.cmake)
 
 add_executable(${MICROPY_TARGET})
+
+# Use flash CLKDIV of 4
+pico_clone_default_boot_stage2(micropy_boot2)
+target_compile_definitions(micropy_boot2 PRIVATE PICO_FLASH_SPI_CLKDIV=4)
+pico_set_boot_stage2(${MICROPY_TARGET} micropy_boot2)
 
 set(MICROPY_QSTRDEFS_PORT
     ${MICROPY_PORT_DIR}/qstrdefsport.h
@@ -137,10 +142,13 @@ set(MICROPY_SOURCE_PORT
     rp2_dma.c
     uart.c
     usbd.c
+    sram.c
     msc_disk.c
     mbedtls/mbedtls_port.c
     ${CMAKE_BINARY_DIR}/pins_${MICROPY_BOARD}.c
 )
+
+pico_generate_pio_header(${MICROPY_TARGET} ${CMAKE_CURRENT_LIST_DIR}/sram.pio)
 
 set(MICROPY_SOURCE_QSTR
     ${MICROPY_SOURCE_PY}

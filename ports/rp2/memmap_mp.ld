@@ -24,7 +24,8 @@
 MEMORY
 {
     FLASH(rx) : ORIGIN = 0x10000000, LENGTH = 2048k
-    RAM(rwx) : ORIGIN =  0x20000000, LENGTH = 256k
+    RAM(rwx) : ORIGIN =  0x20000000, LENGTH = 192k
+    SPI_RAM(rw) : ORIGIN =  0x20030000, LENGTH = 64k
     SCRATCH_X(rwx) : ORIGIN = 0x20040000, LENGTH = 4k
     SCRATCH_Y(rwx) : ORIGIN = 0x20041000, LENGTH = 4k
 }
@@ -185,6 +186,12 @@ SECTIONS
         . = ALIGN(4);
         *(.uninitialized_bss*)
     } > RAM
+
+    /* Emulated SPI RAM */
+    .spi_ram (NOLOAD) : {
+        . = ALIGN(4);
+        *(.spi_ram*)
+    } > SPI_RAM
 
     /* Start and end symbols must be word-aligned */
     .scratch_x : {
