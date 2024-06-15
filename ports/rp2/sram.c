@@ -114,7 +114,7 @@ static void setup_tx_channel()
     );
 }
 
-static inline bool is_cs_high() {
+static __always_inline bool is_cs_high() {
     if (gpio_get(SIM_SRAM_SPI_CS)) {
         if (gpio_get(SIM_SRAM_SPI_CS)) {
             // Must be high for 2 cycles to count - avoids deselecting on a glitch.
@@ -199,7 +199,7 @@ uint8_t* setup_simulated_sram() {
     setup_rx_channel();
     setup_tx_channel();
 
-    hw_set_bits(&bus_ctrl_hw->priority, BUSCTRL_BUS_PRIORITY_DMA_R_BITS | BUSCTRL_BUS_PRIORITY_DMA_W_BITS);
+    hw_set_bits(&bus_ctrl_hw->priority, BUSCTRL_BUS_PRIORITY_DMA_R_BITS | BUSCTRL_BUS_PRIORITY_DMA_W_BITS | BUSCTRL_BUS_PRIORITY_PROC1_BITS);
 
     sram_enabled = false;
     return emu_ram;

@@ -5,10 +5,10 @@
 #include <stdint.h>
 
 // Configuration: GPIOs for the SPI interface
-#define SIM_SRAM_SPI_MOSI 2
-#define SIM_SRAM_SPI_SCK  4  // Must be MOSI + 2
-#define SIM_SRAM_SPI_CS   3  // Must be MOSI + 1
-#define SIM_SRAM_SPI_MISO 5
+#define SIM_SRAM_SPI_MOSI 4
+#define SIM_SRAM_SPI_SCK  6  // Must be MOSI + 2
+#define SIM_SRAM_SPI_CS   5  // Must be MOSI + 1
+#define SIM_SRAM_SPI_MISO 7
 
 // The PIO SMs and DMA channels are hardcoded as using dynamic
 // allocation and then reading the values from memory is slightly slower.
@@ -16,9 +16,9 @@
 // Configuration: PIO and SMs to use
 // A different PIO must be used for each of read and write 
 // as the total program size is too large to fit in one PIO
-#define SIM_SRAM_pio_read_sm   3
+#define SIM_SRAM_pio_read_sm   1
 #define SIM_SRAM_pio_read      pio1
-#define SIM_SRAM_pio_write_sm  3
+#define SIM_SRAM_pio_write_sm  1
 #define SIM_SRAM_pio_write     pio0
 
 // Configuration: DMA channels
