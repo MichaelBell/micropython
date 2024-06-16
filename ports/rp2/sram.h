@@ -29,6 +29,8 @@
 // 16 or 24 address bits
 #define SIM_SRAM_ADDR_BITS 24
 
+#define SIM_SRAM_SIZE 0x20000
+
 // Setup the simulated SRAM, claiming DMA.
 //
 // It is best to call this before other initialization, so that
@@ -42,4 +44,4 @@ void enable_simulated_sram();
 // Disable the simulated SRAM, releasing PIO SMs and resetting core1
 void disable_simulated_sram();
 
-extern uint8_t emu_ram[65536];
+extern uint8_t emu_ram[SIM_SRAM_SIZE];
