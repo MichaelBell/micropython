@@ -13,7 +13,7 @@ To build:
 
     $ make
 
-Building will produce the build/firmware.bin file suitable for loading into a 512kB FRAM.
+Building will produce the build/firmware.bin file suitable for loading into a [512kB FRAM](https://www.adafruit.com/product/4719)).
 
 ## Running nanoV
 
@@ -26,6 +26,20 @@ Then you can load and run the firmware with:
 changing /dev/ttyACM0 to the appropriate serial port for your demo board.
 
 This will give you a MicroPython REPL on the nanoV UART at 115200 baud.
+
+## Using nanoV Micropython
+
+512kB is barely enough space for code, leaving very little room for the Micropython GC heap (currently it is set to 18kB).  The Micropython build is minimal, with only gc, sys and machine modules.
+
+The machine module provides a basic Pin object for accessing the inputs and outputs.  Outputs are pins 0-7 and inputs are pins 8-15.
+
+For example
+
+    for i in range(256):
+      for j in range(8):
+        Pin(j).value((i >> j) & 1)
+    
+will cycle all the outputs (visible on the 7 segment display on the TT04 demo board).
 
 ## Building without the built-in MicroPython compiler
 

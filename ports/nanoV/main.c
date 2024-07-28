@@ -28,15 +28,13 @@ void do_str(const char *src, mp_parse_input_kind_t input_kind) {
 }
 #endif
 
-static char *stack_top;
+extern char __StackTop;
+
 #if MICROPY_ENABLE_GC
 static char heap[MICROPY_HEAP_SIZE];
 #endif
 
 int main(int argc, char **argv) {
-    int stack_dummy;
-    stack_top = (char *)&stack_dummy;
-
     #if MICROPY_ENABLE_GC
     gc_init(heap, heap + sizeof(heap));
     #endif
@@ -69,7 +67,7 @@ void gc_collect(void) {
     // pointers from CPU registers, and thus may function incorrectly.
     void *dummy;
     gc_collect_start();
-    gc_collect_root(&dummy, ((mp_uint_t)stack_top - (mp_uint_t)&dummy) / sizeof(mp_uint_t));
+    gc_collect_root(&dummy, ((mp_uint_t)&__StackTop - (mp_uint_t)&dummy) / sizeof(mp_uint_t));
     gc_collect_end();
     gc_dump_info(&mp_plat_print);
 }

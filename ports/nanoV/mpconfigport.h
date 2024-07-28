@@ -14,7 +14,7 @@
 #define MICROPY_ENABLE_GC                 (1)
 #define MICROPY_HELPER_REPL               (1)
 #define MICROPY_MODULE_FROZEN_MPY         (1)
-#define MICROPY_ENABLE_EXTERNAL_IMPORT    (1)
+#define MICROPY_ENABLE_EXTERNAL_IMPORT    (0)
 
 #define MICROPY_ALLOC_PATH_MAX            (256)
 
@@ -33,7 +33,7 @@ typedef long mp_off_t;
 #define MICROPY_HW_BOARD_NAME "TT04"
 #define MICROPY_HW_MCU_NAME "nanoV"
 
-#define MICROPY_HEAP_SIZE      (24 * 1024)    // heap size 36 kilobytes
+#define MICROPY_HEAP_SIZE      (18 * 1024)    // heap size 36 kilobytes
 #define MICROPY_GC_STACK_ENTRY_TYPE uint16_t  // 16-bit type is sufficient to index the GC heap
 
 #define MP_STATE_PORT MP_STATE_VM
