@@ -17,7 +17,7 @@ RISCV_TOOLCHAIN ?= /opt/nanoV
 CC = $(RISCV_TOOLCHAIN)/bin/riscv32-unknown-elf-gcc
 AS = $(RISCV_TOOLCHAIN)/bin/riscv32-unknown-elf-as
 AR = $(RISCV_TOOLCHAIN)/bin/riscv32-unknown-elf-ar
-LD = $(RISCV_TOOLCHAIN)/bin/riscv32-unknown-elf-ld
+LD = $(RISCV_TOOLCHAIN)/bin/riscv32-unknown-elf-gcc
 OBJCOPY = $(RISCV_TOOLCHAIN)/bin/riscv32-unknown-elf-objcopy
 NANOV_SDK = ../../../nanoV-sdk
 endif
@@ -31,9 +31,9 @@ INC += -I$(NANOV_SDK)
 DFU = $(TOP)/tools/dfu.py
 PYDFU = $(TOP)/tools/pydfu.py
 ARCH = rv32e
-CFLAGS_RV32E = -march=$(ARCH) -mabi=ilp32e -mno-strict-align -nostartfiles -ffreestanding
+CFLAGS_RV32E = -march=$(ARCH) -mabi=ilp32e -mno-strict-align -nostartfiles -ffreestanding -flto
 CFLAGS += $(INC) -Wall -Werror -std=c99 -nostdlib $(CFLAGS_RV32E) $(COPT)
-LDFLAGS +=  -T memmap --gc-sections
+LDFLAGS += -march=$(ARCH) -mabi=ilp32e -flto=auto -ffreestanding -nostartfiles --specs=nano.specs -Wl,-Bstatic,-T,memmap,--gc-sections
 else
 UNAME_S := $(shell uname -s)
 LD = $(CC)

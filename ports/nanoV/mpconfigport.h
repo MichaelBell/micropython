@@ -33,6 +33,10 @@ typedef long mp_off_t;
 #define MICROPY_HW_BOARD_NAME "TT04"
 #define MICROPY_HW_MCU_NAME "nanoV"
 
-#define MICROPY_HEAP_SIZE      (32 * 1024) // heap size 2 kilobytes
+#define MICROPY_HEAP_SIZE      (36 * 1024)    // heap size 36 kilobytes
+#define MICROPY_GC_STACK_ENTRY_TYPE uint16_t  // 16-bit type is sufficient to index the GC heap
 
 #define MP_STATE_PORT MP_STATE_VM
+
+// Module enables
+#define MICROPY_PY_GC (1)
