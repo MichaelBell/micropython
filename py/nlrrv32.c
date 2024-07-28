@@ -79,3 +79,37 @@ NORETURN void nlr_jump(void *val) {
 }
 
 #endif // MICROPY_NLR_RV32I
+
+#if MICROPY_NLR_RV32E
+
+#undef nlr_push
+
+__attribute__((naked)) unsigned int nlr_push(nlr_buf_t *nlr) {
+    __asm volatile (
+        "sw   x1,  8(x10)       \n" // Store RA.
+        "sw   x8, 12(x10)       \n" // Store S0.
+        "sw   x9, 16(x10)       \n" // Store S1.
+        "sw   x2, 20(x10)       \n" // Store SP.
+        "jal  x0, nlr_push_tail \n" // Jump to the C part.
+        );
+}
+
+NORETURN void nlr_jump(void *val) {
+    MP_NLR_JUMP_HEAD(val, top)
+    __asm volatile (
+        "add  x10, x0, %0  \n" // Load nlr_buf address.
+        "lw   x1,  8(x10)  \n" // Retrieve RA.
+        "lw   x8, 12(x10)  \n" // Retrieve S0.
+        "lw   x9, 16(x10)  \n" // Retrieve S1.
+        "lw   x2, 20(x10)  \n" // Retrieve SP.
+        "addi x10, x0, 1   \n" // Return 1 for a non-local return.
+        "jalr  x0, x1, 0   \n" // Return.
+        :                      // Outputs.
+        : "r" (top)            // Inputs.
+        : "memory"             // Clobbered.
+        );
+
+    MP_UNREACHABLE
+}
+
+#endif // MICROPY_NLR_RV32I
