@@ -127,4 +127,6 @@ static inline void cyw43_delay_ms(uint32_t ms) {
 
 #define CYW43_EVENT_POLL_HOOK mp_event_handle_nowait()
 
+void cyw43_set_pio_clock_divisor(uint16_t clock_div_int, uint8_t clock_div_frac);
+
 #endif // MICROPY_INCLUDED_RP2_CYW43_CONFIGPORT_H

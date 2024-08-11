@@ -327,6 +327,7 @@ if (MICROPY_PY_BLUETOOTH_CYW43)
     target_compile_definitions(${MICROPY_TARGET} PRIVATE
         CYW43_ENABLE_BLUETOOTH=1
         MICROPY_PY_BLUETOOTH_CYW43=1
+        CYW43_PIO_CLOCK_DIV_DYNAMIC=1
     )
 
     if (MICROPY_BLUETOOTH_BTSTACK)
@@ -391,6 +392,7 @@ if (MICROPY_PY_NETWORK_CYW43)
     target_compile_definitions(${MICROPY_TARGET} PRIVATE
         MICROPY_PY_NETWORK_CYW43=1
         MICROPY_PY_SOCKET_DEFAULT_TIMEOUT_MS=30000 # default socket timeout
+        CYW43_PIO_CLOCK_DIV_DYNAMIC=1
     )
     if (CMAKE_BUILD_TYPE MATCHES Debug)
     target_compile_definitions(${MICROPY_TARGET} PRIVATE

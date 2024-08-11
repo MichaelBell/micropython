@@ -101,6 +101,10 @@ static void mp_machine_set_freq(size_t n_args, const mp_obj_t *args) {
     setup_default_uart();
     mp_uart_init();
     #endif
+    #if MICROPY_PY_NETWORK_CYW43
+    // Set an appropriate clock divisor for communication with CYW43
+    cyw43_set_pio_clock_divisor(1 + freq / 85000000, 0);
+    #endif
 }
 
 static void mp_machine_idle(void) {
