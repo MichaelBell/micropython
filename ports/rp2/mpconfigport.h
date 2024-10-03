@@ -260,6 +260,10 @@ extern const struct _mp_obj_type_t mod_network_nic_type_wiznet5k;
 #define MICROPY_HW_BOOTSEL_DELAY_US 8
 #endif
 
+#ifndef MICROPY_HW_SYS_CLK_KHZ
+#define MICROPY_HW_SYS_CLK_KHZ SYS_CLK_KHZ
+#endif
+
 #define MICROPY_MAKE_POINTER_CALLABLE(p) ((void *)((mp_uint_t)(p) | 1))
 
 #define MP_SSIZE_MAX (0x7fffffff)
