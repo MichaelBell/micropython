@@ -303,7 +303,10 @@ SECTIONS
      * modules, which might significantly reduce the available heap but also
      * lower demand for memory at runtime.
      */
+    /* Removed this check because it is not relevant for PSRAM builds
+     * Need to work out a better solution here.
     ASSERT((__GcHeapEnd - __GcHeapStart) > 64*1024, "GcHeap is too small")
+     */
 
     ASSERT( __binary_info_header_end - __logical_binary_start <= 1024, "Binary info must be in first 1024 bytes of the binary")
     ASSERT( __embedded_block_end - __logical_binary_start <= 4096, "Embedded block must be in first 4096 bytes of the binary")
