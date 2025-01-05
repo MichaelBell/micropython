@@ -31,7 +31,7 @@
 #include <gpio.h>
 #include "modmachine.h"
 
-// Required, but not implemented by nanoV
+// Required, but not implemented by tinyQV
 static void mp_machine_idle(void) {
     mp_event_handle_nowait(); // handle any events after possibly a long wait (eg feed WDT)
 }

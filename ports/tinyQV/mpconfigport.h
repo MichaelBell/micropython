@@ -2,8 +2,8 @@
 
 // options to control how MicroPython is built
 
-// Use the minimal starting configuration (disables all optional features).
-#define MICROPY_CONFIG_ROM_LEVEL (MICROPY_CONFIG_ROM_LEVEL_MINIMUM)
+// Select the base configuration.
+#define MICROPY_CONFIG_ROM_LEVEL (MICROPY_CONFIG_ROM_LEVEL_CORE_FEATURES)
 
 // You can disable the built-in MicroPython compiler by setting the following
 // config option to 0.  If you do this then you won't get a REPL prompt, but you
@@ -30,7 +30,7 @@ typedef long mp_off_t;
 // We need to provide a declaration/definition of alloca()
 #include <alloca.h>
 
-#define MICROPY_HW_BOARD_NAME "Pico-Ice"
+#define MICROPY_HW_BOARD_NAME "TT06"
 #define MICROPY_HW_MCU_NAME "tinyQV"
 
 #define MICROPY_HEAP_SIZE      (1024 * 1024)    // heap size 1MB
@@ -38,7 +38,7 @@ typedef long mp_off_t;
 #define MP_STATE_PORT MP_STATE_VM
 
 // Module enables
-#define MICROPY_PY_GC         (1)
-#define MICROPY_PY_SYS        (1)
+#define MICROPY_PY_IO         (0)
+#define MICROPY_PY_MICROPYTHON_MEM_INFO (1)
 #define MICROPY_PY_MACHINE    (1)
 #define MICROPY_PY_MACHINE_INCLUDEFILE "ports/tinyQV/modmachine.c"

@@ -15,6 +15,4 @@ typedef struct _machine_pin_obj_t {
     uint8_t last_output_value   : 1;
 } machine_pin_obj_t;
 
-const machine_pin_obj_t nanov_pin_obj[16];
-
 #endif // MICROPY_INCLUDED_NANOV_MODMACHINE_H

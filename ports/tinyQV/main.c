@@ -37,6 +37,7 @@ static char heap[MICROPY_HEAP_SIZE];
 #endif
 
 int main(int argc, char **argv) {
+    MP_STATE_THREAD(stack_top) = (char *)&__StackTop;
     #if MICROPY_ENABLE_GC
     gc_init(heap, heap + sizeof(heap));
     #endif
