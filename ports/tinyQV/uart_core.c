@@ -6,12 +6,12 @@
  * Core UART functions to implement for a port
  */
 
-// Receive single character
+// Receive single character, blocking
 int mp_hal_stdin_rx_chr(void) {
-    unsigned char c = 0;
-    if (uart_is_char_available()) {
+    int c;
+    do {
         c = uart_getc();
-    }
+    } while (c == -1);
     return c;
 }
 

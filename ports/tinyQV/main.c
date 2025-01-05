@@ -45,8 +45,14 @@ int main(int argc, char **argv) {
         mp_init();
         readline_init0();
         for (;;) {
-            if (pyexec_friendly_repl() != 0) {
-                break;
+            if (pyexec_mode_kind == PYEXEC_MODE_RAW_REPL) {
+                if (pyexec_raw_repl() != 0) {
+                    break;
+                }
+            } else {
+                if (pyexec_friendly_repl() != 0) {
+                    break;
+                }
             }
         }
         mp_printf(MP_PYTHON_PRINTER, "MPY: soft reboot\n");
