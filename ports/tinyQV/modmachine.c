@@ -29,6 +29,7 @@
 // extmod/modmachine.c via MICROPY_PY_MACHINE_INCLUDEFILE.
 
 #include <gpio.h>
+#include <spi.h>
 #include "modmachine.h"
 
 // Required, but not implemented by tinyQV
@@ -143,6 +144,128 @@ static mp_obj_t machine_pin_high(mp_obj_t self_in) {
     return mp_const_none;
 }
 static MP_DEFINE_CONST_FUN_OBJ_1(machine_pin_high_obj, machine_pin_high);
+
+///// SPI /////
+
+typedef struct machine_spi_obj {
+    mp_obj_base_t base;
+    bool use_dc;
+} machine_spi_obj_t;
+static machine_spi_obj_t machine_spi_obj = {{&machine_spi_type}, .use_dc=false};
+
+mp_obj_t machine_spi_make_new(const mp_obj_type_t *type, size_t n_args, size_t n_kw, const mp_obj_t *all_args) {
+    enum { ARG_divisor, ARG_read_latency, ARG_use_cs, ARG_use_dc };
+    static const mp_arg_t allowed_args[] = {
+        { MP_QSTR_divisor,  MP_ARG_INT, {.u_int = 4} },
+        { MP_QSTR_read_latency, MP_ARG_INT, {.u_int = 0} },
+        { MP_QSTR_use_cs,   MP_ARG_BOOL, {.u_bool = true} },
+        { MP_QSTR_use_dc,   MP_ARG_BOOL, {.u_bool = false} },
+    };
+
+    // Parse the arguments.
+    mp_arg_val_t args[MP_ARRAY_SIZE(allowed_args)];
+    mp_arg_parse_all_kw_array(n_args, n_kw, all_args, MP_ARRAY_SIZE(allowed_args), allowed_args, args);
+
+    // Get static peripheral object.
+    machine_spi_obj_t *self = (machine_spi_obj_t *)&machine_spi_obj;
+
+    // Initialise the SPI peripheral
+    int spi_config = (args[ARG_divisor].u_int >> 2) - 1;
+    if (spi_config < 0) spi_config = 0;
+    if (spi_config > 3) spi_config = 3;
+    if (args[ARG_read_latency].u_int != 0) spi_config |= 4;
+
+    // Determine which pins must be selected away from GPIO use
+    int spi_pins = 0x28;
+    if (args[ARG_use_cs].u_bool) spi_pins |= 0x10;
+    if (args[ARG_use_dc].u_bool) spi_pins |= 0x04;
+    self->use_dc = args[ARG_use_dc].u_bool;
+
+    int sel = get_gpio_sel();
+    sel &= ~spi_pins;
+    set_gpio_sel(sel);
+
+    return MP_OBJ_FROM_PTR(self);
+}
+
+static void machine_spi_print(const mp_print_t *print, mp_obj_t self_in, mp_print_kind_t kind) {
+    machine_spi_obj_t *self = MP_OBJ_TO_PTR(self_in);
+    mp_printf(print, "SPI(use_dc=%s)",
+        self->use_dc ? "True" : "False");
+}
+
+static void machine_spi_init(mp_obj_base_t *self_in, size_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_args) {
+    enum { ARG_divisor, ARG_read_latency, ARG_use_cs, ARG_use_dc };
+    static const mp_arg_t allowed_args[] = {
+        { MP_QSTR_divisor,  MP_ARG_INT, {.u_int = 4} },
+        { MP_QSTR_read_latency, MP_ARG_INT, {.u_int = 0} },
+        { MP_QSTR_use_cs,   MP_ARG_BOOL, {.u_bool = true} },
+        { MP_QSTR_use_dc,   MP_ARG_BOOL, {.u_bool = false} },
+    };
+
+    // Parse the arguments.
+    machine_spi_obj_t *self = (machine_spi_obj_t *)self_in;
+    mp_arg_val_t args[MP_ARRAY_SIZE(allowed_args)];
+    mp_arg_parse_all(n_args, pos_args, kw_args, MP_ARRAY_SIZE(allowed_args), allowed_args, args);
+
+    // Initialise the SPI peripheral
+    int spi_config = (args[ARG_divisor].u_int >> 2) - 1;
+    if (spi_config < 0) spi_config = 0;
+    if (spi_config > 3) spi_config = 3;
+    if (args[ARG_read_latency].u_int != 0) spi_config |= 4;
+
+    // Determine which pins must be selected away from GPIO use
+    int spi_pins = 0x28;
+    if (args[ARG_use_cs].u_bool) spi_pins |= 0x10;
+    if (args[ARG_use_dc].u_bool) spi_pins |= 0x04;
+    self->use_dc = args[ARG_use_dc].u_bool;
+
+    int sel = get_gpio_sel();
+    sel &= ~spi_pins;
+    set_gpio_sel(sel);
+}
+
+static void machine_spi_transfer(mp_obj_base_t *self_in, size_t len, const uint8_t *src, uint8_t *dest) {
+    // note src is guaranteed to be non-NULL
+    bool write_only = dest == NULL;
+
+    if (write_only) {
+        spi_send_bytes(src, len, true, machine_spi_obj.use_dc);
+    } else {
+        spi_send_recv_bytes(src, dest, len, true, machine_spi_obj.use_dc);
+    }
+}
+
+static const mp_machine_spi_p_t machine_spi_p = {
+    .init = machine_spi_init,
+    .transfer = machine_spi_transfer,
+};
+
+MP_DEFINE_CONST_OBJ_TYPE(
+    machine_spi_type,
+    MP_QSTR_SPI,
+    MP_TYPE_FLAG_NONE,
+    make_new, machine_spi_make_new,
+    print, machine_spi_print,
+    protocol, &machine_spi_p,
+    locals_dict, &mp_machine_spi_locals_dict
+    );
+
+mp_obj_base_t *mp_hal_get_spi_obj(mp_obj_t o) {
+    if (mp_obj_is_type(o, &machine_spi_type)) {
+        return MP_OBJ_TO_PTR(o);
+    }
+    #if MICROPY_PY_MACHINE_SOFTSPI
+    else if (mp_obj_is_type(o, &mp_machine_soft_spi_type)) {
+        return MP_OBJ_TO_PTR(o);
+    }
+    #endif
+    else {
+        mp_raise_TypeError(MP_ERROR_TEXT("expecting an SPI object"));
+    }
+}
+
+
 
 static const mp_rom_map_elem_t machine_pin_locals_dict_table[] = {
     // instance methods

@@ -43,4 +43,5 @@ typedef long mp_off_t;
 #define MICROPY_PY_IO         (0)
 #define MICROPY_PY_MICROPYTHON_MEM_INFO (1)
 #define MICROPY_PY_MACHINE    (1)
+#define MICROPY_PY_MACHINE_SPI (1)
 #define MICROPY_PY_MACHINE_INCLUDEFILE "ports/tinyQV/modmachine.c"
