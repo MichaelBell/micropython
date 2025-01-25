@@ -17,21 +17,15 @@ Building will produce the build/firmware.bin file suitable for loading onto the 
 
 ## Running tinyQV
 
-Copy the Micropython files in the `tt` directory to your TT06 board (TODO: No boards to verify this on yet!)
+Use the [TinyQV Programmer](https://tinyqv.rebel-lion.uk/) to program and launch the firmware.
 
-Then you can load and run the firmware with:
-
-    mpremote connect /dev/ttyACM0 + mount . + exec "import os; os.chdir('/'); import run_tinyqv; run_tinyqv.execute('/remote/build/firmware.bin')"
-
-changing /dev/ttyACM0 to the appropriate serial port for your demo board.
-
-This will give you a MicroPython REPL on the tinyQV UART at 115200 baud.  However, note that TinyQV UART has a bug which is worked around by sending all characters twice (link to customised pico-uart-bridge that does this, or possibly we can expose a UART that does this from the demoboard Micropython?)
+This will give you a MicroPython REPL on the tinyQV UART at 115200 baud.  However, note that TinyQV UART has a bug which is worked around by sending all characters twice.  The tinyQV SDK has a workaround for this which requires every character to be sent twice.  The console in the TinyQV Programmer implements this workaround, but if you are interacting with the UART in another way you must be aware of it.
 
 ## Using tinyQV Micropython
 
-The Micropython build is currently minimal, with only gc, sys and machine modules.  It should be possible to expand this significantly.
+The Micropython build is currently basic, without more advanced modules.  I expect to expand that as the port progresses.
 
-The machine module provides a basic Pin object for accessing the inputs and outputs.  Outputs are pins 0-7 and inputs are pins 8-15.
+The machine module provides a Pin object for accessing the inputs and outputs.  Outputs are pins 0-7 and inputs are pins 8-15.
 
 For example
 
@@ -39,12 +33,27 @@ For example
       for j in range(2,8):
         Pin(j).value((i >> j) & 1)
     
-will cycle the top 6 outputs (visible on the 7 segment display on the TT04 demo board).  Note out0 and out1 are used for UART, so if you configure them as output pins then the UART will stop working.
+will cycle the top 6 outputs (visible on the 7 segment display on the TT06 demo board).  Note out0 and out1 are used for UART, so if you configure them as output pins then the UART will stop working.
+
+An SPI module is also provided, allowing use of the hard SPI block, which uses the following pins:
+
+    ui[2]: "SPI MISO"
+    uo[3]: "SPI MOSI"
+    uo[4]: "SPI CS"
+    uo[5]: "SPI SCK"
+
+The basic instantiation is `spi = machine.SPI()`, which provides an SPI at 16MHz clock using the above pins.
+
+Additional arguments are:
+
+- `divisor`: 2, 4, 6 or 8.  Default 4.  Divides the 64MHz clock to provide the SPI clock.
+- `read_latency`: 0 or 1, default 0.  A value of 1 delays the sampling of read data by half an SPI clock cycle, which may be required when using a small divisor.
+- `use_cs`: boolean, default `True`.  Automatically sets the CS line low when an SPI transfer is requested.  Set to `False` to manually control the CS.
+
+Once initialised the [standard machine.SPI](https://docs.micropython.org/en/latest/library/machine.SPI.html#machine-spi) functions are available.
 
 ## TODO
 
-* Get UART RX workaround working on the TT06 hardware (fingers crossed this is possible!)
-* Add support for TinyQV's SPI
 * Ability to set output pins back to non-GPIO mode
 * Full interface support not just REPL - get Thonny working
 * Make build less minimal
