@@ -16,7 +16,7 @@
 #define MICROPY_MODULE_FROZEN_MPY         (1)
 #define MICROPY_ENABLE_EXTERNAL_IMPORT    (0)
 #define MICROPY_LONGINT_IMPL (MICROPY_LONGINT_IMPL_MPZ)
-//#define MICROPY_FLOAT_IMPL (MICROPY_FLOAT_IMPL_FLOAT)
+#define MICROPY_FLOAT_IMPL (MICROPY_FLOAT_IMPL_FLOAT)
 
 #define MICROPY_ALLOC_PATH_MAX            (256)
 
@@ -25,6 +25,7 @@
 
 // type definitions for the specific machine
 
+#define MP_SSIZE_MAX (0x7fffffff)
 typedef intptr_t mp_int_t; // must be pointer size
 typedef uintptr_t mp_uint_t; // must be pointer size
 typedef long mp_off_t;
@@ -40,10 +41,21 @@ typedef long mp_off_t;
 #define MP_STATE_PORT MP_STATE_VM
 
 // Module enables
-#define MICROPY_PY_IO         (0)
+#define MICROPY_PY_OS         (1)
+#define MICROPY_VFS           (1)
+#define MICROPY_VFS_FAT       (1)
+#define MICROPY_VFS_LFS2      (1)
+#define MICROPY_ENABLE_FINALISER (1)
+#define MICROPY_PY_SYS_STDFILES (0)
+#define MICROPY_READER_VFS          (MICROPY_VFS)
+#define MICROPY_PY_BUILTINS_MEMORYVIEW (1)
 #define MICROPY_PY_FRAMEBUF   (1)
 #define MICROPY_PY_ASYNCIO    (1)
 #define MICROPY_PY_MICROPYTHON_MEM_INFO (1)
 #define MICROPY_PY_MACHINE    (1)
 #define MICROPY_PY_MACHINE_SPI (1)
 #define MICROPY_PY_MACHINE_INCLUDEFILE "ports/tinyQV/modmachine.c"
+
+#define MICROPY_FATFS_ENABLE_LFN                (1)
+#define MICROPY_FATFS_LFN_CODE_PAGE             437 /* 1=SFN/ANSI 437=LFN/U.S.(OEM) */
+#define MICROPY_FATFS_RPATH                     (2)

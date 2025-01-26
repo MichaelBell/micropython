@@ -114,6 +114,29 @@ static mp_obj_t machine_pin_call(mp_obj_t self_in, size_t n_args, size_t n_kw, c
 }
 
 // pin.value([value])
+static mp_obj_t machine_pin_init(size_t n_args, const mp_obj_t* pos_args, mp_map_t *kw_args) {
+    enum { ARG_self, ARG_mode, ARG_value };
+    static const mp_arg_t allowed_args[] = {
+        { MP_QSTR_, MP_ARG_REQUIRED | MP_ARG_OBJ },
+        { MP_QSTR_mode,  MP_ARG_INT, {.u_int = MACHINE_PIN_MODE_IN} },
+        { MP_QSTR_value, MP_ARG_INT, {.u_int = 0} },
+    };
+
+    // Parse the arguments.
+    mp_arg_val_t args[MP_ARRAY_SIZE(allowed_args)];
+    mp_arg_parse_all(n_args, pos_args, kw_args, MP_ARRAY_SIZE(allowed_args), allowed_args, args);
+
+    if (args[ARG_mode].u_int == MACHINE_PIN_MODE_OUT) {
+        // TODO, this is probably not the best way to do this
+        mp_obj_t value_obj = MP_OBJ_NEW_SMALL_INT(args[ARG_value].u_int);
+        machine_pin_call(args[ARG_self].u_obj, 1, 0, &value_obj);
+    }
+
+    return mp_const_none;
+}
+static MP_DEFINE_CONST_FUN_OBJ_KW(machine_pin_init_obj, 1, machine_pin_init);
+
+// pin.value([value])
 static mp_obj_t machine_pin_value(size_t n_args, const mp_obj_t *args) {
     return machine_pin_call(args[0], n_args - 1, 0, args + 1);
 }
@@ -274,6 +297,7 @@ static const mp_rom_map_elem_t machine_pin_locals_dict_table[] = {
     { MP_ROM_QSTR(MP_QSTR_high), MP_ROM_PTR(&machine_pin_high_obj) },
     { MP_ROM_QSTR(MP_QSTR_off), MP_ROM_PTR(&machine_pin_low_obj) },
     { MP_ROM_QSTR(MP_QSTR_on), MP_ROM_PTR(&machine_pin_high_obj) },
+    { MP_ROM_QSTR(MP_QSTR_init), MP_ROM_PTR(&machine_pin_init_obj) },
 
     // class constants
     { MP_ROM_QSTR(MP_QSTR_IN), MP_ROM_INT(MACHINE_PIN_MODE_IN) },

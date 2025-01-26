@@ -43,6 +43,7 @@ int main(int argc, char **argv) {
     #endif
     for (;;) {
         mp_init();
+        //mp_obj_list_append(mp_sys_path, MP_OBJ_NEW_QSTR(MP_QSTR__slash_lib));
         readline_init0();
         for (;;) {
             if (pyexec_mode_kind == PYEXEC_MODE_RAW_REPL) {
@@ -74,6 +75,7 @@ void gc_collect(void) {
 }
 #endif
 
+#if !MICROPY_VFS
 mp_lexer_t *mp_lexer_new_from_file(qstr filename) {
     mp_raise_OSError(MP_ENOENT);
 }
@@ -81,6 +83,7 @@ mp_lexer_t *mp_lexer_new_from_file(qstr filename) {
 mp_import_stat_t mp_import_stat(const char *path) {
     return MP_IMPORT_STAT_NO_EXIST;
 }
+#endif
 
 void nlr_jump_fail(void *val) {
     while (1) {
