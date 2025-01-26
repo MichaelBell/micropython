@@ -43,7 +43,7 @@ int main(int argc, char **argv) {
     #endif
     for (;;) {
         mp_init();
-        //mp_obj_list_append(mp_sys_path, MP_OBJ_NEW_QSTR(MP_QSTR__slash_lib));
+        mp_obj_list_append(mp_sys_path, MP_OBJ_NEW_QSTR(MP_QSTR__slash_lib));
         readline_init0();
         for (;;) {
             if (pyexec_mode_kind == PYEXEC_MODE_RAW_REPL) {

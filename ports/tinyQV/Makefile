@@ -8,6 +8,8 @@ QSTR_DEFS = qstrdefsport.h
 # MicroPython feature configurations
 MICROPY_ROM_TEXT_COMPRESSION ?= 1
 
+FROZEN_MANIFEST = manifest.py
+
 # include py core make definitions
 include $(TOP)/py/py.mk
 include $(TOP)/extmod/extmod.mk
@@ -35,7 +37,6 @@ ARCH = rv32ec_zcb
 CFLAGS_RV32E = -march=$(ARCH) -mabi=ilp32e -mno-strict-align -nostartfiles -ffreestanding -flto
 CFLAGS += $(INC) -Wall -Werror -std=gnu99 -nostdlib $(CFLAGS_RV32E) $(COPT)
 LDFLAGS += -march=$(ARCH) -mabi=ilp32e -flto=auto -ffreestanding -nostartfiles --specs=nano.specs -Wl,-Bstatic,-T,memmap,--gc-sections
-#LDFLAGS += -march=$(ARCH) -mabi=ilp32e -ffreestanding -nostartfiles --specs=nano.specs -Wl,-Bstatic,-T,memmap,--gc-sections
 else
 UNAME_S := $(shell uname -s)
 LD = $(CC)
@@ -47,14 +48,12 @@ LDFLAGS += -Wl,-map,$@.map -Wl,-dead_strip
 endif
 endif
 
-CSUPEROPT = -Os # save some code space
-
 # Tune for Debugging or Optimization
 CFLAGS += -g  # always include debug info in the ELF
 ifeq ($(DEBUG), 1)
 CFLAGS += -O0
 else
-CFLAGS += -Os -DNDEBUG
+CFLAGS += -O2 -DNDEBUG
 CFLAGS += -fdata-sections -ffunction-sections
 endif
 
@@ -79,7 +78,6 @@ SRC_C = \
 	lib/littlefs/lfs2_util.c \
 	lib/oofatfs/ff.c \
 	lib/oofatfs/ffunicode.c \
-	$(BUILD)/_frozen_mpy.c \
 
 ifeq ($(CROSS), 1)
 SRC_C += shared/libc/string0.c
@@ -96,10 +94,6 @@ all: $(BUILD)/firmware.bin
 else
 all: $(BUILD)/firmware.elf
 endif
-
-$(BUILD)/_frozen_mpy.c: $(TOP)/tests/frozen/frozentest.mpy $(BUILD)/genhdr/qstrdefs.generated.h
-	$(ECHO) "MISC freezing bytecode"
-	$(Q)$(TOP)/tools/mpy-tool.py -f -q $(BUILD)/genhdr/qstrdefs.preprocessed.h $< > $@
 
 $(BUILD)/firmware.elf: $(OBJ)
 	$(ECHO) "LINK $@"

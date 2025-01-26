@@ -11,6 +11,8 @@ Additionally, it requires an RV32E compatible [Risc-V toolchain](https://github.
 
 To build:
 
+    $ make clean
+    $ make submodules
     $ make
 
 Building will produce the build/firmware.bin file suitable for loading onto the [QSPI Pmod](https://github.com/mole99/qspi-pmod).
@@ -51,6 +53,20 @@ Additional arguments are:
 - `use_cs`: boolean, default `True`.  Automatically sets the CS line low when an SPI transfer is requested.  Set to `False` to manually control the CS.
 
 Once initialised the [standard machine.SPI](https://docs.micropython.org/en/latest/library/machine.SPI.html#machine-spi) functions are available.
+
+## SD Card
+
+An SD card library is included, this works with the SPI pins.
+
+Example usage:
+
+    from sd import SDCard
+    import os
+    from machine import Pin
+    
+    sd = SDCard(Pin(4))
+    os.mount(sd, "/sd")
+    os.listdir("/sd")
 
 ## TODO
 

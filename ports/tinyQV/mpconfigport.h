@@ -13,8 +13,7 @@
 #define MICROPY_QSTR_EXTRA_POOL           mp_qstr_frozen_const_pool
 #define MICROPY_ENABLE_GC                 (1)
 #define MICROPY_HELPER_REPL               (1)
-#define MICROPY_MODULE_FROZEN_MPY         (1)
-#define MICROPY_ENABLE_EXTERNAL_IMPORT    (0)
+#define MICROPY_ENABLE_EXTERNAL_IMPORT    (1)
 #define MICROPY_LONGINT_IMPL (MICROPY_LONGINT_IMPL_MPZ)
 #define MICROPY_FLOAT_IMPL (MICROPY_FLOAT_IMPL_FLOAT)
 
@@ -49,6 +48,9 @@ typedef long mp_off_t;
 #define MICROPY_PY_SYS_STDFILES (0)
 #define MICROPY_READER_VFS          (MICROPY_VFS)
 #define MICROPY_PY_BUILTINS_MEMORYVIEW (1)
+#define MICROPY_PY_BUILTINS_FROZENSET               (1)
+#define MICROPY_PY_BUILTINS_EXECFILE                (1)
+#define MICROPY_PY_BUILTINS_HELP (1)
 #define MICROPY_PY_FRAMEBUF   (1)
 #define MICROPY_PY_ASYNCIO    (1)
 #define MICROPY_PY_MICROPYTHON_MEM_INFO (1)
