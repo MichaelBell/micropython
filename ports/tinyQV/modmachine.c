@@ -197,6 +197,7 @@ mp_obj_t machine_spi_make_new(const mp_obj_type_t *type, size_t n_args, size_t n
     if (spi_config < 0) spi_config = 0;
     if (spi_config > 3) spi_config = 3;
     if (args[ARG_read_latency].u_int != 0) spi_config |= 4;
+    spi_set_config(spi_config);
 
     // Determine which pins must be selected away from GPIO use
     int spi_pins = 0x28;
@@ -236,6 +237,7 @@ static void machine_spi_init(mp_obj_base_t *self_in, size_t n_args, const mp_obj
     if (spi_config < 0) spi_config = 0;
     if (spi_config > 3) spi_config = 3;
     if (args[ARG_read_latency].u_int != 0) spi_config |= 4;
+    spi_set_config(spi_config);
 
     // Determine which pins must be selected away from GPIO use
     int spi_pins = 0x28;
