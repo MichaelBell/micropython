@@ -51,6 +51,7 @@ typedef long mp_off_t;
 #define MICROPY_PY_BUILTINS_FROZENSET               (1)
 #define MICROPY_PY_BUILTINS_EXECFILE                (1)
 #define MICROPY_PY_BUILTINS_HELP (1)
+#define MICROPY_PY_FSTRINGS   (1)
 #define MICROPY_PY_FRAMEBUF   (1)
 #define MICROPY_PY_ASYNCIO    (1)
 #define MICROPY_PY_MICROPYTHON_MEM_INFO (1)
