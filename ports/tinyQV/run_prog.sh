@@ -1,0 +1,1 @@
+mpremote a1 mount . + exec "import os; os.chdir('/'); import run_tinyqv; run_tinyqv.execute('/remote/build/firmware.bin', '/remote/tinyqv.bit')"
