@@ -10,6 +10,7 @@
 #include "py/mperrno.h"
 #include "shared/runtime/pyexec.h"
 #include "shared/readline/readline.h"
+#include "shared/runtime/gchelper.h"
 
 #if 0
 #if MICROPY_ENABLE_COMPILER
@@ -44,6 +45,8 @@ int main(int argc, char **argv) {
     for (;;) {
         mp_init();
         mp_obj_list_append(mp_sys_path, MP_OBJ_NEW_QSTR(MP_QSTR__slash_lib));
+        pyexec_frozen_module("_boot.py", false);
+
         readline_init0();
         for (;;) {
             if (pyexec_mode_kind == PYEXEC_MODE_RAW_REPL) {
@@ -65,11 +68,8 @@ int main(int argc, char **argv) {
 
 #if MICROPY_ENABLE_GC
 void gc_collect(void) {
-    // WARNING: This gc_collect implementation doesn't try to get root
-    // pointers from CPU registers, and thus may function incorrectly.
-    void *dummy;
     gc_collect_start();
-    gc_collect_root(&dummy, ((mp_uint_t)&__StackTop - (mp_uint_t)&dummy) / sizeof(mp_uint_t));
+    gc_helper_collect_regs_and_stack();
     gc_collect_end();
     gc_dump_info(&mp_plat_print);
 }

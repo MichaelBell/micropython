@@ -32,7 +32,7 @@ typedef long mp_off_t;
 // We need to provide a declaration/definition of alloca()
 #include <alloca.h>
 
-#define MICROPY_HW_BOARD_NAME "TT06"
+#define MICROPY_HW_BOARD_NAME "ttsky25a"
 #define MICROPY_HW_MCU_NAME "tinyQV"
 
 #define MICROPY_HEAP_SIZE      (1024 * 1024)    // heap size 1MB

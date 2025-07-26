@@ -4,7 +4,7 @@ import machine
 import vfs
 
 
-PSRAM_BASE = 0x1000000
+PSRAM_BASE = 0x1800000
 PSRAM_SIZE = 8 * 1024 * 1024
 
 class PSRAMBlockDevice:

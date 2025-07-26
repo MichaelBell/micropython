@@ -34,6 +34,7 @@ INC += -I$(TINYQV_SDK)
 DFU = $(TOP)/tools/dfu.py
 PYDFU = $(TOP)/tools/pydfu.py
 ARCH = rv32ec_zcb_zicond
+AFLAGS = -march=$(ARCH) -mabi=ilp32e
 CFLAGS_RV32E = -march=$(ARCH) -mabi=ilp32e -mno-strict-align -nostartfiles -ffreestanding -flto
 CFLAGS += $(INC) -Wall -Werror -std=gnu99 -nostdlib $(CFLAGS_RV32E) $(COPT)
 LDFLAGS += -march=$(ARCH) -mabi=ilp32e -flto=auto -ffreestanding -nostartfiles --specs=nano.specs -Wl,-Bstatic,-T,memmap,--gc-sections
@@ -73,6 +74,7 @@ SRC_C = \
 	shared/readline/readline.c \
 	shared/runtime/pyexec.c \
 	shared/runtime/stdout_helpers.c \
+	shared/runtime/gchelper_native.c \
 	shared/timeutils/timeutils.c \
 	lib/littlefs/lfs2.c \
 	lib/littlefs/lfs2_util.c \
@@ -88,6 +90,7 @@ SRC_QSTR += shared/readline/readline.c shared/runtime/pyexec.c main.c
 OBJ += $(PY_O)
 OBJ += $(addprefix $(BUILD)/, $(SRC_C:.c=.o))
 OBJ += $(addprefix $(BUILD)/, $(SRC_CXX:.cpp=.o))
+OBJ += $(BUILD)/shared/runtime/gchelper_rv32e.o
 
 ifeq ($(CROSS), 1)
 all: $(BUILD)/firmware.bin
