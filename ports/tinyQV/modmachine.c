@@ -61,7 +61,7 @@ machine_pin_obj_t tinyqv_pin_obj[16] = {
     {{&machine_pin_type}, 7, 0, 0},
 };
 
-const machine_pin_obj_t *machine_pin_find(mp_obj_t pin) {
+machine_pin_obj_t *machine_pin_find(mp_obj_t pin) {
     // Is already a object of the proper type
     if (mp_obj_is_type(pin, &machine_pin_type)) {
         return MP_OBJ_TO_PTR(pin);
@@ -74,22 +74,6 @@ const machine_pin_obj_t *machine_pin_find(mp_obj_t pin) {
         }
     }
     mp_raise_ValueError(MP_ERROR_TEXT("Invalid pin"));
-}
-
-// constructor(id, ...)
-mp_obj_t mp_pin_make_new(const mp_obj_type_t *type, size_t n_args, size_t n_kw, const mp_obj_t *args) {
-    mp_arg_check_num(n_args, n_kw, 1, MP_OBJ_FUN_ARGS_MAX, true);
-
-    const machine_pin_obj_t *self = machine_pin_find(args[0]);
-
-    if (self->is_output) {
-        uint32_t output_sel = get_debug_sel();
-        output_sel |= 1 << self->id;
-        set_debug_sel(output_sel);
-        set_gpio_func(self->id, GPIO_FUNC_GPIO);
-    }
-
-    return MP_OBJ_FROM_PTR(self);
 }
 
 // fast method for getting/setting pin value
@@ -114,23 +98,62 @@ static mp_obj_t machine_pin_call(mp_obj_t self_in, size_t n_args, size_t n_kw, c
     return mp_const_none;
 }
 
+// constructor(id, ...)
+mp_obj_t mp_pin_make_new(const mp_obj_type_t *type, size_t n_args, size_t n_kw, const mp_obj_t *pos_args) {
+    enum { ARG_id, ARG_mode, ARG_value, ARG_func_sel };
+    static const mp_arg_t allowed_args[] = {
+        { MP_QSTR_id, MP_ARG_REQUIRED | MP_ARG_INT },
+        { MP_QSTR_mode,  MP_ARG_INT, {.u_int = MACHINE_PIN_MODE_IN} },
+        { MP_QSTR_value, MP_ARG_INT, {.u_int = 0} },
+        { MP_QSTR_func_sel, MP_ARG_INT, {.u_int = 1} }
+    };
+
+    // Parse the arguments.
+    mp_map_t kw_args;
+    mp_map_init_fixed_table(&kw_args, n_kw, pos_args + n_args);
+
+    mp_arg_val_t args[MP_ARRAY_SIZE(allowed_args)];
+    mp_arg_parse_all(n_args, pos_args, &kw_args, MP_ARRAY_SIZE(allowed_args), allowed_args, args);
+    machine_pin_obj_t *self = machine_pin_find(MP_OBJ_NEW_SMALL_INT(args[ARG_id].u_int));
+
+    if (self->is_output) {
+        uint32_t output_sel = get_debug_sel();
+        output_sel |= 1 << self->id;
+        set_debug_sel(output_sel);
+
+        self->func_sel = args[ARG_func_sel].u_int;
+        set_gpio_func(self->id, self->func_sel);
+        if (self->func_sel == 1) {
+            mp_obj_t value_obj = MP_OBJ_NEW_SMALL_INT(args[ARG_value].u_int);
+            machine_pin_call(self, 1, 0, &value_obj);
+        }
+    }
+
+    return MP_OBJ_FROM_PTR(self);
+}
+
 // pin.value([value])
 static mp_obj_t machine_pin_init(size_t n_args, const mp_obj_t* pos_args, mp_map_t *kw_args) {
-    enum { ARG_self, ARG_mode, ARG_value };
+    enum { ARG_self, ARG_mode, ARG_value, ARG_func_sel };
     static const mp_arg_t allowed_args[] = {
         { MP_QSTR_, MP_ARG_REQUIRED | MP_ARG_OBJ },
         { MP_QSTR_mode,  MP_ARG_INT, {.u_int = MACHINE_PIN_MODE_IN} },
         { MP_QSTR_value, MP_ARG_INT, {.u_int = 0} },
+        { MP_QSTR_func_sel, MP_ARG_INT, {.u_int = 1} }
     };
 
     // Parse the arguments.
     mp_arg_val_t args[MP_ARRAY_SIZE(allowed_args)];
     mp_arg_parse_all(n_args, pos_args, kw_args, MP_ARRAY_SIZE(allowed_args), allowed_args, args);
+    machine_pin_obj_t *self = args[ARG_self].u_obj;
 
-    if (args[ARG_mode].u_int == MACHINE_PIN_MODE_OUT) {
-        // TODO, this is probably not the best way to do this
-        mp_obj_t value_obj = MP_OBJ_NEW_SMALL_INT(args[ARG_value].u_int);
-        machine_pin_call(args[ARG_self].u_obj, 1, 0, &value_obj);
+    if (self->is_output) {
+        self->func_sel = args[ARG_func_sel].u_int;
+        set_gpio_func(self->id, self->func_sel);
+        if (self->func_sel == 1) {
+            mp_obj_t value_obj = MP_OBJ_NEW_SMALL_INT(args[ARG_value].u_int);
+            machine_pin_call(self, 1, 0, &value_obj);
+        }
     }
 
     return mp_const_none;
