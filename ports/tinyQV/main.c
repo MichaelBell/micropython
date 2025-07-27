@@ -34,7 +34,7 @@ void do_str(const char *src, mp_parse_input_kind_t input_kind) {
 extern char __StackTop;
 
 #if MICROPY_ENABLE_GC
-static char heap[MICROPY_HEAP_SIZE];
+static char __attribute__((section(".uninitialized_data"))) heap[MICROPY_HEAP_SIZE];
 #endif
 
 int main(int argc, char **argv) {
@@ -71,7 +71,7 @@ void gc_collect(void) {
     gc_collect_start();
     gc_helper_collect_regs_and_stack();
     gc_collect_end();
-    gc_dump_info(&mp_plat_print);
+    //gc_dump_info(&mp_plat_print);
 }
 #endif
 

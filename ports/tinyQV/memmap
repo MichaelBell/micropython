@@ -52,12 +52,18 @@ SECTIONS
         __bss_end__ = .;
     } > ram_a
 
+    .uninitialized_data (NOLOAD): {
+        . = ALIGN(16);
+        *(.uninitialized_data*)
+    } > ram_a
+
     .heap (NOLOAD):
     {
+        . = ALIGN(4);
         __HeapStart = .;
         KEEP(*(.heap*))
         __HeapLimit = .;
-    } > ram_b
+    } > ram_a
 
     __global_pointer$ = 0x1000400;
     __StackTop = ORIGIN(ram_a) + LENGTH(ram_a);

@@ -13,7 +13,12 @@ static inline mp_uint_t mp_hal_ticks_us(void) {
 }
 
 static inline mp_uint_t mp_hal_ticks_ms(void) {
-    return read_time() / 1000;
+    //return read_time() / 1000;
+
+    // Faster divide by constant
+    uint64_t t = read_time();
+    t *= 274877907;
+    return (mp_uint_t)(t >> 38);
 }
 
 static inline mp_uint_t mp_hal_ticks_cpu(void) {

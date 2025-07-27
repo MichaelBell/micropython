@@ -19,9 +19,6 @@
 
 #define MICROPY_ALLOC_PATH_MAX            (256)
 
-// Use the minimum headroom in the chunk allocator for parse nodes.
-#define MICROPY_ALLOC_PARSE_CHUNK_INIT    (16)
-
 // type definitions for the specific machine
 
 #define MP_SSIZE_MAX (0x7fffffff)
@@ -35,7 +32,7 @@ typedef long mp_off_t;
 #define MICROPY_HW_BOARD_NAME "ttsky25a"
 #define MICROPY_HW_MCU_NAME "tinyQV"
 
-#define MICROPY_HEAP_SIZE      (1024 * 1024)    // heap size 1MB
+#define MICROPY_HEAP_SIZE      (1 * 1024 * 1024)    // heap size 1MB
 
 #define MP_STATE_PORT MP_STATE_VM
 
@@ -45,7 +42,7 @@ typedef long mp_off_t;
 #define MICROPY_VFS_FAT       (1)
 #define MICROPY_VFS_LFS2      (1)
 #define MICROPY_ENABLE_FINALISER (1)
-#define MICROPY_PY_SYS_STDFILES (0)
+#define MICROPY_GC_ALLOC_THRESHOLD (1)
 #define MICROPY_READER_VFS          (MICROPY_VFS)
 #define MICROPY_PY_BUILTINS_MEMORYVIEW (1)
 #define MICROPY_PY_BUILTINS_FROZENSET               (1)
@@ -53,8 +50,8 @@ typedef long mp_off_t;
 #define MICROPY_PY_BUILTINS_HELP (1)
 #define MICROPY_PY_FSTRINGS   (1)
 #define MICROPY_PY_FRAMEBUF   (1)
-#define MICROPY_PY_ASYNCIO    (1)
 #define MICROPY_PY_MICROPYTHON_MEM_INFO (1)
+#define MICROPY_PY_SYS_MAXSIZE (1)
 #define MICROPY_PY_MACHINE    (1)
 #define MICROPY_PY_MACHINE_SPI (0)
 #define MICROPY_PY_MACHINE_INCLUDEFILE "ports/tinyQV/modmachine.c"
