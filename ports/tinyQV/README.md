@@ -1,11 +1,11 @@
 # The tinyQV port
 
-This port is based on the minimal MicroPython port, targeting tinyQV as on Tiny Tapeout 06.
+This port is based on the minimal MicroPython port, targeting tinyQV as on Tiny Tapeout sky25a.
 
-## Building for TT06 tinyQV
+## Building for ttsky25a tinyQV
 
 The Makefile expects the [tinyQV-sdk](https://github.com/MichaelBell/tinyQV-sdk) to be a sibling
-directory of the micropython directory.
+directory of the micropython directory.  Make sure to checkout the `ttsky25a` branch.
 
 Additionally, it requires an RV32E compatible [Risc-V toolchain](https://github.com/MichaelBell/riscv-gnu-toolchain) in /opt/tinyQV
 
@@ -19,9 +19,15 @@ Building will produce the build/firmware.bin file suitable for loading onto the 
 
 ## Running tinyQV
 
+### Once ttsky25a is delivered
+
 Use the [TinyQV Programmer](https://tinyqv.rebel-lion.uk/) to program and launch the firmware.
 
 This will give you a MicroPython REPL on the tinyQV UART at 115200 baud.  However, note that TinyQV UART has a bug which is worked around by sending all characters twice.  The tinyQV SDK has a workaround for this which requires every character to be sent twice.  The console in the TinyQV Programmer implements this workaround, but if you are interacting with the UART in another way you must be aware of it.
+
+### Testing on FPGA
+
+I'm using an ECP5 board that sits in the TT demoboard.  There's a programmer in my [TT-ECP5](https://github.com/MichaelBell/tt-ecp5) repo.
 
 ## Using tinyQV Micropython
 
@@ -35,7 +41,9 @@ For example
       for j in range(2,8):
         Pin(j).value((i >> j) & 1)
     
-will cycle the top 6 outputs (visible on the 7 segment display on the TT06 demo board).  Note out0 and out1 are used for UART, so if you configure them as output pins then the UART will stop working.
+will cycle the top 6 outputs (visible on the 7 segment display on the TT demo board).  Note out0 is used for UART, so if you configure it as an output pin then the UART will stop working.
+
+Below test about SPI and SD is not currently valid - we need a SPI peripheral for the SoC!
 
 An SPI module is also provided, allowing use of the hard SPI block, which uses the following pins:
 
@@ -71,7 +79,5 @@ Example usage:
 ## TODO
 
 * Implement interrupt (Ctrl-C)
-* Implement GC collection from registers and stack
 * Full interface support not just REPL - get Thonny working
-* Infrastucture for user peripherals
-
+* Infrastructure for user peripherals
