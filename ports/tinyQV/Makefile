@@ -70,6 +70,7 @@ SRC_C = \
 	fatfs_port.c \
 	uart_core.c \
 	mphalport.c \
+	tinyqv_psram.c \
 	shared/libc/printf.c \
 	shared/readline/readline.c \
 	shared/runtime/pyexec.c \
@@ -85,7 +86,7 @@ ifeq ($(CROSS), 1)
 SRC_C += shared/libc/string0.c
 endif
 
-SRC_QSTR += shared/readline/readline.c shared/runtime/pyexec.c main.c
+SRC_QSTR += shared/readline/readline.c shared/runtime/pyexec.c main.c tinyqv_psram.c
 
 OBJ += $(PY_O)
 OBJ += $(addprefix $(BUILD)/, $(SRC_C:.c=.o))
