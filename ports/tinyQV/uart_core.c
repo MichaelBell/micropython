@@ -1,5 +1,6 @@
 #include <unistd.h>
 #include "py/mpconfig.h"
+#include <py/runtime.h>
 #include <uart.h>
 
 /*
@@ -10,6 +11,7 @@
 int mp_hal_stdin_rx_chr(void) {
     int c;
     do {
+        mp_event_handle_nowait();
         c = uart_getc();
     } while (c == -1);
     return c;

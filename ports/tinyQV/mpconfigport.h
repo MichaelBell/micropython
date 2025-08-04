@@ -56,6 +56,17 @@ typedef long mp_off_t;
 #define MICROPY_PY_MACHINE_SPI (0)
 #define MICROPY_PY_MACHINE_INCLUDEFILE "ports/tinyQV/modmachine.c"
 
+#define MICROPY_KBD_EXCEPTION (1)
+
 #define MICROPY_FATFS_ENABLE_LFN                (1)
 #define MICROPY_FATFS_LFN_CODE_PAGE             437 /* 1=SFN/ANSI 437=LFN/U.S.(OEM) */
 #define MICROPY_FATFS_RPATH                     (2)
+
+#define MICROPY_INTERNAL_EVENT_HOOK \
+    do { \
+        extern volatile uint8_t uart_rx_interrupt_seen; \
+        if (uart_rx_interrupt_seen) { \
+            mp_sched_keyboard_interrupt(); \
+            uart_rx_interrupt_seen = 0; \
+        } \
+    } while (0)
