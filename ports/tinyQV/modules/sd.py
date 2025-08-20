@@ -20,7 +20,7 @@ _TOKEN_DATA = const(0xFE)
 
 class SDCard:
     def __init__(self, cs, divider=6):
-        self.spi = SPI(divisor=divider, use_cs=False)
+        self.spi = SPI(divisor=divider)
         self.cs = cs
 
         self.cmdbuf = bytearray(6)
@@ -34,14 +34,14 @@ class SDCard:
         self.init_card(divider)
 
     def init_spi(self, divider):
-        self.spi.init(divisor=divider, use_cs=False)
+        self.spi.init(divisor=divider)
 
     def init_card(self, divider):
         # init CS pin
         self.cs.init(self.cs.OUT, value=1)
 
         # init SPI bus; use low data rate for initialisation
-        self.init_spi(8)
+        self.init_spi(32)
 
         # clock card at least 100 cycles with cs high
         for i in range(16):

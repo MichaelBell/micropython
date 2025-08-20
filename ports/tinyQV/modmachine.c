@@ -192,7 +192,6 @@ static mp_obj_t machine_pin_high(mp_obj_t self_in) {
 }
 static MP_DEFINE_CONST_FUN_OBJ_1(machine_pin_high_obj, machine_pin_high);
 
-#if 0
 ///// SPI /////
 
 typedef struct machine_spi_obj {
@@ -202,11 +201,11 @@ typedef struct machine_spi_obj {
 static machine_spi_obj_t machine_spi_obj = {{&machine_spi_type}, .use_dc=false};
 
 mp_obj_t machine_spi_make_new(const mp_obj_type_t *type, size_t n_args, size_t n_kw, const mp_obj_t *all_args) {
-    enum { ARG_divisor, ARG_read_latency, ARG_use_cs, ARG_use_dc };
+    enum { ARG_divisor, ARG_read_latency, ARG_cs_pin, ARG_use_dc };
     static const mp_arg_t allowed_args[] = {
         { MP_QSTR_divisor,  MP_ARG_INT, {.u_int = 4} },
         { MP_QSTR_read_latency, MP_ARG_INT, {.u_int = 0} },
-        { MP_QSTR_use_cs,   MP_ARG_BOOL, {.u_bool = true} },
+        { MP_QSTR_cs_pin,   MP_ARG_OBJ, {.u_rom_obj = MP_ROM_NONE} },
         { MP_QSTR_use_dc,   MP_ARG_BOOL, {.u_bool = false} },
     };
 
@@ -218,21 +217,25 @@ mp_obj_t machine_spi_make_new(const mp_obj_type_t *type, size_t n_args, size_t n
     machine_spi_obj_t *self = (machine_spi_obj_t *)&machine_spi_obj;
 
     // Initialise the SPI peripheral
-    int spi_config = (args[ARG_divisor].u_int >> 2) - 1;
+    int spi_config = (args[ARG_divisor].u_int >> 1) - 1;
     if (spi_config < 0) spi_config = 0;
-    if (spi_config > 3) spi_config = 3;
-    if (args[ARG_read_latency].u_int != 0) spi_config |= 4;
+    if (spi_config > 127) spi_config = 127;
+    if (args[ARG_read_latency].u_int != 0) spi_config |= 0x80;
     spi_set_config(spi_config);
 
     // Determine which pins must be selected away from GPIO use
-    int spi_pins = 0x28;
-    if (args[ARG_use_cs].u_bool) spi_pins |= 0x10;
-    if (args[ARG_use_dc].u_bool) spi_pins |= 0x04;
+    set_gpio_func(3, 30);  // SPI MOSI
+    set_gpio_func(5, 30);  // SPI SCK
     self->use_dc = args[ARG_use_dc].u_bool;
+    if (self->use_dc) {
+        set_gpio_func(2, 30);
+    }
 
-    int sel = get_gpio_sel();
-    sel &= ~spi_pins;
-    set_gpio_sel(sel);
+    if (args[ARG_cs_pin].u_obj != mp_const_none)
+    {
+        machine_pin_obj_t *cs_pin = machine_pin_find(args[ARG_cs_pin].u_obj);
+        set_gpio_func(cs_pin->id, 30);
+    }
 
     return MP_OBJ_FROM_PTR(self);
 }
@@ -244,11 +247,11 @@ static void machine_spi_print(const mp_print_t *print, mp_obj_t self_in, mp_prin
 }
 
 static void machine_spi_init(mp_obj_base_t *self_in, size_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_args) {
-    enum { ARG_divisor, ARG_read_latency, ARG_use_cs, ARG_use_dc };
+    enum { ARG_divisor, ARG_read_latency, ARG_cs_pin, ARG_use_dc };
     static const mp_arg_t allowed_args[] = {
         { MP_QSTR_divisor,  MP_ARG_INT, {.u_int = 4} },
         { MP_QSTR_read_latency, MP_ARG_INT, {.u_int = 0} },
-        { MP_QSTR_use_cs,   MP_ARG_BOOL, {.u_bool = true} },
+        { MP_QSTR_cs_pin,   MP_ARG_OBJ, {.u_rom_obj = MP_ROM_NONE} },
         { MP_QSTR_use_dc,   MP_ARG_BOOL, {.u_bool = false} },
     };
 
@@ -258,21 +261,25 @@ static void machine_spi_init(mp_obj_base_t *self_in, size_t n_args, const mp_obj
     mp_arg_parse_all(n_args, pos_args, kw_args, MP_ARRAY_SIZE(allowed_args), allowed_args, args);
 
     // Initialise the SPI peripheral
-    int spi_config = (args[ARG_divisor].u_int >> 2) - 1;
+    int spi_config = (args[ARG_divisor].u_int >> 1) - 1;
     if (spi_config < 0) spi_config = 0;
-    if (spi_config > 3) spi_config = 3;
-    if (args[ARG_read_latency].u_int != 0) spi_config |= 4;
+    if (spi_config > 127) spi_config = 127;
+    if (args[ARG_read_latency].u_int != 0) spi_config |= 0x80;
     spi_set_config(spi_config);
 
     // Determine which pins must be selected away from GPIO use
-    int spi_pins = 0x28;
-    if (args[ARG_use_cs].u_bool) spi_pins |= 0x10;
-    if (args[ARG_use_dc].u_bool) spi_pins |= 0x04;
+    set_gpio_func(3, 30);  // SPI MOSI
+    set_gpio_func(5, 30);  // SPI SCK
     self->use_dc = args[ARG_use_dc].u_bool;
+    if (self->use_dc) {
+        set_gpio_func(2, 30);
+    }
 
-    int sel = get_gpio_sel();
-    sel &= ~spi_pins;
-    set_gpio_sel(sel);
+    if (args[ARG_cs_pin].u_obj != mp_const_none)
+    {
+        machine_pin_obj_t *cs_pin = machine_pin_find(args[ARG_cs_pin].u_obj);
+        set_gpio_func(cs_pin->id, 30);
+    }
 }
 
 static void machine_spi_transfer(mp_obj_base_t *self_in, size_t len, const uint8_t *src, uint8_t *dest) {
@@ -314,7 +321,6 @@ mp_obj_base_t *mp_hal_get_spi_obj(mp_obj_t o) {
         mp_raise_TypeError(MP_ERROR_TEXT("expecting an SPI object"));
     }
 }
-#endif
 
 
 static const mp_rom_map_elem_t machine_pin_locals_dict_table[] = {
