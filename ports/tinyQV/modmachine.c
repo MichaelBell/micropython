@@ -224,6 +224,7 @@ mp_obj_t machine_spi_make_new(const mp_obj_type_t *type, size_t n_args, size_t n
     spi_set_config(spi_config);
 
     // Determine which pins must be selected away from GPIO use
+    // TODO detect if on GF0p2 and use perioheral 16 instead.
     set_gpio_func(3, 30);  // SPI MOSI
     set_gpio_func(5, 30);  // SPI SCK
     self->use_dc = args[ARG_use_dc].u_bool;

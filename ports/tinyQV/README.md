@@ -1,6 +1,6 @@
 # The tinyQV port
 
-This port is based on the minimal MicroPython port, targeting tinyQV as on Tiny Tapeout sky25a.
+This port is based on the minimal MicroPython port, targeting tinyQV as on Tiny Tapeout sky25a or gf0p2.
 
 ## Building for ttsky25a tinyQV
 
@@ -9,7 +9,15 @@ directory of the micropython directory.  Make sure to checkout the `ttsky25a` br
 
 Additionally, it requires an RV32E compatible [Risc-V toolchain](https://github.com/MichaelBell/riscv-gnu-toolchain) in /opt/tinyQV
 
-To build:
+The MicroPython cross-compiler must be built first, which will be used to
+pre-compile (freeze) built-in Python code.  This cross-compiler is built and
+run on the host machine using:
+
+    $ make -C mpy-cross
+
+This command should be executed from the root directory of this repository.
+All other commands below should be executed from the ports/tinyQV/ directory.
+To build the firmware run (from this directory):
 
     $ make clean
     $ make submodules
@@ -21,9 +29,9 @@ Building will produce the build/firmware.bin file suitable for loading onto the 
 
 ### Once ttsky25a is delivered
 
-Use the [TinyQV Programmer](https://tinyqv.rebel-lion.uk/) to program and launch the firmware.
+Use the [TinyQV Programmer](https://tinyqv.rebel-lion.uk/) to program and launch the firmware.  Note you need to change the design number if using Berzerk instead of Asteroids.
 
-This will give you a MicroPython REPL on the tinyQV UART at 115200 baud.  However, note that TinyQV UART has a bug which is worked around by sending all characters twice.  The tinyQV SDK has a workaround for this which requires every character to be sent twice.  The console in the TinyQV Programmer implements this workaround, but if you are interacting with the UART in another way you must be aware of it.
+This will give you a MicroPython REPL on the tinyQV UART at 115200 baud.
 
 ### Testing on FPGA
 
@@ -38,10 +46,10 @@ The machine module provides a Pin object for accessing the inputs and outputs.  
 For example
 
     for i in range(256):
-      for j in range(2,8):
+      for j in (1, 2, 3, 4, 6, 7, 8):
         Pin(j).value((i >> j) & 1)
     
-will cycle the top 6 outputs (visible on the 7 segment display on the TT demo board).  Note out0 is used for UART, so if you configure it as an output pin then the UART will stop working.
+will cycle the top 6 outputs (visible on the 7 segment display on the TT demo board).  Note out0 and out5 are used for UART, so if you configure it as an output pin then the UART will stop working.  By default out0 is used for UART TX and out5 is used for flow control.  in7 is used for UART RX.
 
 Below test about SPI and SD is not currently valid - we need a SPI peripheral for the SoC!
 
@@ -56,7 +64,7 @@ The basic instantiation is `spi = machine.SPI()`, which provides an SPI at 16MHz
 
 Additional arguments are:
 
-- `divisor`: 2, 4, 6 or 8.  Default 4.  Divides the 64MHz clock to provide the SPI clock.
+- `divisor`: Even numbers 2-256.  Default 4.  Divides the 64MHz system clock to provide the SPI clock.
 - `read_latency`: 0 or 1, default 0.  A value of 1 delays the sampling of read data by half an SPI clock cycle, which may be required when using a small divisor.
 - `use_cs`: boolean, default `True`.  Automatically sets the CS line low when an SPI transfer is requested.  Set to `False` to manually control the CS.
 
