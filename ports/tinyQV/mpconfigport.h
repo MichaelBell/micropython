@@ -70,3 +70,6 @@ typedef long mp_off_t;
             uart_rx_interrupt_seen = 0; \
         } \
     } while (0)
+
+#define MICROPY_MACHINE_MEM_GET_READ_ADDR machine_mem_get_addr
+#define MICROPY_MACHINE_MEM_GET_WRITE_ADDR machine_mem_get_addr

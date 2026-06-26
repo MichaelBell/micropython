@@ -347,3 +347,9 @@ MP_DEFINE_CONST_OBJ_TYPE(
     call, machine_pin_call,
     locals_dict, &machine_pin_locals_dict
     );
+
+// Allow unaligned mem address
+uintptr_t machine_mem_get_addr(mp_obj_t addr_o, uint align) {
+    uintptr_t addr = mp_obj_get_int_truncated(addr_o);
+    return addr;
+}
