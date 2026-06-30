@@ -224,18 +224,17 @@ mp_obj_t machine_spi_make_new(const mp_obj_type_t *type, size_t n_args, size_t n
     spi_set_config(spi_config);
 
     // Determine which pins must be selected away from GPIO use
-    // TODO detect if on GF0p2 and use perioheral 16 instead.
-    set_gpio_func(3, 30);  // SPI MOSI
-    set_gpio_func(5, 30);  // SPI SCK
+    set_gpio_func(3, TINYQV_SPI_PERIPHERAL_NUM);  // SPI MOSI
+    set_gpio_func(5, TINYQV_SPI_PERIPHERAL_NUM);  // SPI SCK
     self->use_dc = args[ARG_use_dc].u_bool;
     if (self->use_dc) {
-        set_gpio_func(2, 30);
+        set_gpio_func(2, TINYQV_SPI_PERIPHERAL_NUM);
     }
 
     if (args[ARG_cs_pin].u_obj != mp_const_none)
     {
         machine_pin_obj_t *cs_pin = machine_pin_find(args[ARG_cs_pin].u_obj);
-        set_gpio_func(cs_pin->id, 30);
+        set_gpio_func(cs_pin->id, TINYQV_SPI_PERIPHERAL_NUM);
     }
 
     return MP_OBJ_FROM_PTR(self);
@@ -269,17 +268,17 @@ static void machine_spi_init(mp_obj_base_t *self_in, size_t n_args, const mp_obj
     spi_set_config(spi_config);
 
     // Determine which pins must be selected away from GPIO use
-    set_gpio_func(3, 30);  // SPI MOSI
-    set_gpio_func(5, 30);  // SPI SCK
+    set_gpio_func(3, TINYQV_SPI_PERIPHERAL_NUM);  // SPI MOSI
+    set_gpio_func(5, TINYQV_SPI_PERIPHERAL_NUM);  // SPI SCK
     self->use_dc = args[ARG_use_dc].u_bool;
     if (self->use_dc) {
-        set_gpio_func(2, 30);
+        set_gpio_func(2, TINYQV_SPI_PERIPHERAL_NUM);
     }
 
     if (args[ARG_cs_pin].u_obj != mp_const_none)
     {
         machine_pin_obj_t *cs_pin = machine_pin_find(args[ARG_cs_pin].u_obj);
-        set_gpio_func(cs_pin->id, 30);
+        set_gpio_func(cs_pin->id, TINYQV_SPI_PERIPHERAL_NUM);
     }
 }
 
